@@ -1,9 +1,20 @@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Changelog for package tf_tree_terminal
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package tf_tree_terminal_cpp
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Forthcoming
 -----------
+* Rewrite as C++ package ``tf_tree_terminal_cpp`` (ament_cmake, rclcpp); the Python package is removed
+* Listen to ``/tf`` and ``/tf_static`` directly instead of going through a tf2 buffer
+* Show the publishing node(s) per transform instead of all publishers of the topic, and flag
+  transforms that several nodes publish
+* Report stamps ahead of the clock (``FUTURE``), frames with several parents and loops
+* Frames without parent are labelled ``ROOT``; static frames show ``STATIC`` once
+* ``/joint_states`` publishers are listed once in the diagnostic instead of on every joint
+* Unknown command line arguments are an error
+* Unit tests with gtest, CI for Humble, Jazzy, Kilted and Rolling
+
+Entries below are from the Python package ``tf_tree_terminal``.
 
 2.0.0 (2026-01-06)
 ------------------

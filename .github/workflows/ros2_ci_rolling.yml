@@ -9,44 +9,29 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        ros-distro: [rolling]
+    container: ros:rolling-ros-base
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup ROS
-        uses: ros-tooling/setup-ros@v0.7
         with:
-          required-ros-distributions: ${{ matrix.ros-distro }}
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Install system deps and rosdep
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-rosdep
-          sudo rosdep init || true
-          rosdep update
+          path: src/tf_tree_terminal_cpp
 
       - name: Install package dependencies
         run: |
-          rosdep install --from-paths src --ignore-src --rosdistro ${{ matrix.ros-distro }} -r -y || true
+          apt-get update
+          rosdep update --rosdistro rolling
+          rosdep install --from-paths src --ignore-src --rosdistro rolling -y
 
       - name: Build package
+        shell: bash
         run: |
-          . /opt/ros/${{ matrix.ros-distro }}/setup.sh
-          colcon build --packages-select tf_tree_terminal --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+          . /opt/ros/rolling/setup.bash
+          colcon build --packages-select tf_tree_terminal_cpp --cmake-args -DCMAKE_BUILD_TYPE=Release
 
       - name: Run tests
+        shell: bash
         run: |
-          . install/setup.sh
-          # Run tests but exclude linter-style tests (by common names/labels)
-          colcon test --packages-select tf_tree_terminal --pytest-args -k "not lint"
+          . /opt/ros/rolling/setup.bash
+          colcon test --packages-select tf_tree_terminal_cpp --event-handlers console_direct+
           colcon test-result --verbose

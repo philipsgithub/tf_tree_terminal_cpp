@@ -1,0 +1,37 @@
+name: ROS2 Kilted
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    container: ros:kilted-ros-base
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: src/tf_tree_terminal_cpp
+
+      - name: Install package dependencies
+        run: |
+          apt-get update
+          rosdep update --rosdistro kilted
+          rosdep install --from-paths src --ignore-src --rosdistro kilted -y
+
+      - name: Build package
+        shell: bash
+        run: |
+          . /opt/ros/kilted/setup.bash
+          colcon build --packages-select tf_tree_terminal_cpp --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+      - name: Run tests
+        shell: bash
+        run: |
+          . /opt/ros/kilted/setup.bash
+          colcon test --packages-select tf_tree_terminal_cpp --event-handlers console_direct+
+          colcon test-result --verbose
